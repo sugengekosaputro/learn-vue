@@ -1,11 +1,35 @@
 <template>
-  <div class="about" @click="modal = false">
+  <div class="about">
     <div class="head">
-      <DropdownList
+      <!-- <DropdownList
         @on-item-selected="dropdownSelection = $event"
         @on-item-reset="dropdownSelection = {}"
+        :msg="msg"
         class="sentra-search"
-      />
+      /> -->
+      <div class="cok" @click="modal = false"></div>
+      <div class="sentra-search">
+        <div class="dropdown">
+          <input
+            type="text"
+            autocomplete="off"
+            class="dropdown-input"
+            v-model="item"
+            @input="filterItems"
+            @focus="modal = true"
+          />
+          <div v-if="filteredItems && modal" class="dropdown-list">
+            <div
+              v-for="filtered in filteredItems"
+              :key="filtered.name"
+              @click="setItem(filtered)"
+              class="dropdown-item"
+            >
+              {{ filtered.name }}
+            </div>
+          </div>
+        </div>
+      </div>
       <button class="btn-search">Cari</button>
     </div>
 
@@ -14,56 +38,37 @@
     </div>
 
     <hr />
-    <div class="dropdown">
-      <input
-        type="text"
-        autocomplete="off"
-        class="dropdown-input"
-        v-model="item"
-        @input="filterItems"
-        @focus="modal = true"
-      />
-      <div v-if="filteredItems && modal" class="dropdown-list">
-        <div
-          v-for="filtered in filteredItems"
-          :key="filtered.name"
-          @click="setItem(filtered)"
-          class="dropdown-item"
-        >
-          {{ filtered.name }}
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
-import DropdownList from "@/components/DropdownList.vue";
+//import DropdownList from "@/components/DropdownList.vue";
 import axios from "axios";
 export default {
   data() {
     return {
-      dropdownSelection: {},
+      // dropdownSelection: {},
       modal: false,
       item: "",
+      msg: false,
       items: [],
       filteredItems: [],
       apiUrl: "https://restcountries.eu/rest/v2/all?fields=name;flag"
     };
   },
-  components: {
-    DropdownList
-  },
+  // components: {
+  //   DropdownList
+  // },
   methods: {
     getData() {
       axios.get(this.apiUrl).then(response => {
         this.items = response.data;
 
-      if (this.item.length === 0) {
-        this.filteredItems = this.items
-      }
-              console.log(this.filteredItems, "filter");
-                console.log(this.items, "items");
+        if (this.item.length === 0) {
+          this.filteredItems = this.items;
+        }
+        console.log(this.filteredItems, "filter");
+        console.log(this.items, "items");
       });
     },
     filterItems() {
@@ -75,21 +80,29 @@ export default {
     setItem(obj) {
       this.item = obj.name;
       this.modal = false;
-            console.log('clicked');
-    },
-    close(){
-      this.modal = false;
+      console.log("clicked");
     }
   },
   mounted() {
     this.getData();
+  },
+  watch: {
+    item() {
+      this.filterItems();
+    }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.about {
-  z-index: 0;
+.cok {
+  background-color: lightcoral;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  z-index: 1;
 }
 .head {
   display: inline-flex;
@@ -105,6 +118,7 @@ export default {
   border: none;
   color: white;
   margin-left: 10px;
+  z-index: 2;
 }
 
 .result {

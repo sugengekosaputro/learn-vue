@@ -1,6 +1,6 @@
 <template>
   <div class="dropdown">
-    <input
+    <!-- <input
       v-if="Object.keys(selectedItem).length === 0"
       ref="dropdowninput"
       v-model.trim="inputValue"
@@ -22,6 +22,25 @@
       >
         {{ item.name }}
       </div>
+    </div> -->
+
+    <input
+      type="text"
+      autocomplete="off"
+      class="dropdown-input"
+      v-model="item"
+      @input="filterItems"
+      @focus="modal = true"
+    />
+    <div v-if="filteredItems && modal" class="dropdown-list">
+      <div
+        v-for="filtered in filteredItems"
+        :key="filtered.name"
+        @click="setItem(filtered)"
+        class="dropdown-item"
+      >
+        {{ filtered.name }}
+      </div>
     </div>
   </div>
 </template>
@@ -29,52 +48,96 @@
 <script>
 import axios from "axios";
 export default {
+  props: {
+    msg: Boolean
+  },
   data() {
     return {
       selectedItem: {},
-      inputValue: "",
-      itemList: [],
-      apiLoaded: false,
-      previewed: false,
+      // inputValue: "",
+      // itemList: [],
+      // apiLoaded: false,
+      // previewed: false,
+      // apiUrl: "https://restcountries.eu/rest/v2/all?fields=name;flag"
+      modal: this.msg,
+      item: "",
+      items: [],
+      filteredItems: [],
       apiUrl: "https://restcountries.eu/rest/v2/all?fields=name;flag"
     };
   },
   mounted() {
-    this.getList();
+    //    this.getList();
+    this.getData();
+    this.ping();
   },
   methods: {
-    resetSelection() {
-      this.selectedItem = {};
-      this.$nextTick(() => this.$refs.dropdowninput.focus());
-      this.$emit("on-item-reset");
-    },
-    selectItem(theItem) {
-      this.selectedItem = theItem;
-      this.inputValue = "";
-      this.$emit("on-item-selected", theItem);
-    },
-    itemVisible(item) {
-      let currentName = item.name.toLowerCase();
-      let currentInput = this.inputValue.toLowerCase();
-      return currentName.includes(currentInput);
-    },
-    getList() {
+    // resetSelection() {
+    //   this.selectedItem = {};
+    //   this.$nextTick(() => this.$refs.dropdowninput.focus());
+    //   this.$emit("on-item-reset");
+    // },
+    // selectItem(theItem) {
+    //   this.selectedItem = theItem;
+    //   this.inputValue = "";
+    //   this.$emit("on-item-selected", theItem);
+    // },
+    // itemVisible(item) {
+    //   let currentName = item.name.toLowerCase();
+    //   let currentInput = this.inputValue.toLowerCase();
+    //   return currentName.includes(currentInput);
+    // },
+    // getList() {
+    //   axios.get(this.apiUrl).then(response => {
+    //     this.itemList = response.data;
+    //     this.apiLoaded = true;
+    //     console.log(response);
+    //   });
+    // },
+    // preview(){
+    //   if(!this.previewed) {
+    //     this.previewed = true;
+    //   }
+    // }
+    getData() {
       axios.get(this.apiUrl).then(response => {
-        this.itemList = response.data;
-        this.apiLoaded = true;
-        console.log(response);
+        this.items = response.data;
+
+        if (this.item.length === 0) {
+          this.filteredItems = this.items;
+        }
+        console.log(this.filteredItems, "filter");
+        console.log(this.items, "items");
       });
     },
-    preview(){
-      if(!this.previewed) {
-        this.previewed = true;
-      }
+    filterItems() {
+      this.filteredItems = this.items.filter(item => {
+        return item.name.toLowerCase().startsWith(this.item.toLowerCase());
+      });
+    },
+
+    setItem(obj) {
+      this.item = obj.name;
+      this.modal = false;
+      console.log("clicked");
+    },
+    close() {
+      this.modal = false;
+    },
+    ping() {
+      console.log(this.modal,"aaa");
+    }
+  },
+  watch: {
+    msg() {
+      console.log("change wathc ","aaa");
     }
   }
 };
 </script>
 
 <style>
+
 .dropdown {
   position: relative;
   width: 100%;
