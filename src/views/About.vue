@@ -29,6 +29,7 @@
             </div>
           </div>
         </div>
+        <span class="clear" @click="clear">x</span>
       </div>
       <button class="btn-search">Cari</button>
     </div>
@@ -81,6 +82,9 @@ export default {
       this.item = obj.name;
       this.modal = false;
       console.log("clicked");
+    },
+    clear() {
+      this.item = "";
     }
   },
   mounted() {
@@ -96,13 +100,23 @@ export default {
 
 <style lang="scss" scoped>
 .cok {
-  background-color: lightcoral;
   width: 100%;
   height: 100%;
   position: absolute;
   left: 0px;
   top: 0px;
   z-index: 1;
+}
+
+.sentra-search {
+  position: relative;
+}
+.clear {
+  position: absolute;
+  z-index: 10;
+  top: 7px;
+  right: 15px;
+  cursor: pointer;
 }
 .head {
   display: inline-flex;
